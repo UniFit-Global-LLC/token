@@ -125,4 +125,28 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     transactionBurnEnabled = false;
   }
 
+  /**
+    * @dev Destroys `amount` tokens from the caller.
+    *
+    * See {ERC20Burnable-_burn}.
+    */
+  function burn(uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+      _burn(_msgSender(), amount);
+  }
+
+  /**
+    * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+    * allowance.
+    *
+    * See {ERC20Burnable-_burnFrom}
+    */
+  function burnFrom(address account, uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+      uint256 currentAllowance = allowance(account, _msgSender());
+      require(currentAllowance >= amount, "Burn amount exceeds allowance");
+      unchecked {
+          _approve(account, _msgSender(), currentAllowance - amount);
+      }
+      _burn(account, amount);
+  }
+
 }
