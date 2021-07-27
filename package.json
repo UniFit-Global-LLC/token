@@ -1,0 +1,23 @@
+{
+  "name": "unifit-token",
+  "version": "0.1.0",
+  "description": "Token repository for UniFit Global",
+  "repository": "git@github.com:Unifit-Global/token.git",
+  "author": "support@unifitglobal.com",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "hardhat": "^2.5.0"
+  },
+  "scripts": {
+    "test": "npx hardhat test",
+    "chain": "npx hardhat node"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^3.0.0",
+    "ethers": "^5.0.0"
+  }
+}
