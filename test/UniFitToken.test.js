@@ -139,4 +139,23 @@ describe("UniFitToken", function () {
 
   });
 
+  it("should allow admins to burn from the total supply", async function () {
+
+    totalSupply = await UniFitToken.totalSupply();
+    const burnAmount = ethers.BigNumber.from("10000000");
+    await UniFitToken.burn(burnAmount);
+    expect(await UniFitToken.totalSupply()).to.equal(totalSupply.sub(burnAmount));
+
+  });
+
+  it("should allow only admins to burn from the total supply", async function () {
+
+    totalSupply = await UniFitToken.totalSupply();
+    const burnAmount = ethers.BigNumber.from("10000000");
+    const secondUserConnection = UniFitToken.connect(secondAddress);
+    await expect(secondUserConnection.burn(burnAmount)).to.be.reverted;
+    expect(await UniFitToken.totalSupply()).to.equal(totalSupply);
+
+  });
+
 });
