@@ -6,13 +6,16 @@ describe("UniFitToken", function () {
     // Get signers of local chain
     const [owner] = await ethers.getSigners();
 
+    // Total Supply
+    const totalSupply = ethers.BigNumber.from("50000000000000000000000000000");
+
+    // Deploy contract instance
     const UniFitTokenContract = await ethers.getContractFactory("UniFitToken");
-    const UniFitToken = await UniFitTokenContract.deploy();
+    const UniFitToken = await UniFitTokenContract.deploy(totalSupply);
     await UniFitToken.deployed();
 
-    const totalSupply = ethers.BigNumber.from("50000000000000000000000000000");
+    // Assertions
     expect(await UniFitToken.totalSupply()).to.equal(totalSupply);
     expect(await UniFitToken.balanceOf(owner.address)).to.equal(totalSupply);
-
   });
 });
