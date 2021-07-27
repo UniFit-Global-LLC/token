@@ -1,0 +1,12 @@
+{
+  "name": "unifit-token",
+  "version": "0.1.0",
+  "description": "Token repository for UniFit Global",
+  "repository": "git@github.com:Unifit-Global/token.git",
+  "author": "support@unifitglobal.com",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "hardhat": "^2.5.0"
+  }
+}
