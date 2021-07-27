@@ -8,11 +8,13 @@
   "private": true,
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
-    "hardhat": "^2.5.0"
+    "hardhat": "^2.5.0",
+    "solhint": "^3.3.6"
   },
   "scripts": {
     "test": "npx hardhat test",
-    "chain": "npx hardhat node"
+    "chain": "npx hardhat node",
+    "solhint": "solhint 'contracts/**/*.sol'"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

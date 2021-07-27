@@ -26,3 +26,9 @@ Note: [`yarn` installation can be found here](https://yarnpkg.com/getting-starte
 ```
 yarn test
 ```
+
+### Lint Contract
+
+```
+yarn solhint
+```

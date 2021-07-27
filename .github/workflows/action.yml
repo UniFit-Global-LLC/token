@@ -27,4 +27,5 @@ jobs:
         node-version: '14'
         cache: 'yarn'
     - run: yarn install
+    - run: yarn solhint
     - run: yarn test
