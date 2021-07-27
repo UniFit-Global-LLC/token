@@ -1,19 +1,36 @@
 //SPDX-License-Identifier: NOLICENSE
 pragma solidity ^0.8.2;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract UniFitToken is ERC20, ERC20Burnable {
+contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   using SafeMath for uint256;
 
-  constructor(uint256 initialSupply) ERC20("UniFit Token", "UNIFT") {
-      _mint(msg.sender, initialSupply);
-  }
+  // Enable transaction burn by default.
+  bool public transactionBurnEnabled = true;
+
+  // Set divisor constants.
+  uint256 public constant MIN_BURN_DIVISOR = 10;
+  uint256 public constant MAX_BURN_DIVISOR = 200;
 
   // Institute a minimum supply to prevent over-deflation.
   uint256 private _minimumSupply = 2000 * (10**18);
+
+  // Institute a minimum supply to prevent over-deflation.
+  uint256 public burnDivisor = MIN_BURN_DIVISOR;
+
+  /**
+    * @dev Constructor.
+    *
+    * Constructor method used in deployment.
+    */
+  constructor(uint256 initialSupply) ERC20("UniFit Token", "UNIFT") {
+      _mint(msg.sender, initialSupply);
+      _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+  }
 
   /**
     * @dev See {ERC20-transfer}.
@@ -68,8 +85,8 @@ contract UniFitToken is ERC20, ERC20Burnable {
   {
       uint256 burnAmount = 0;
 
-      if (totalSupply() > _minimumSupply) {
-          burnAmount = amount.div(100);
+      if (transactionBurnEnabled && totalSupply() > _minimumSupply) {
+          burnAmount = amount.div(burnDivisor);
           uint256 availableBurn = totalSupply().sub(_minimumSupply);
           if (burnAmount > availableBurn) {
               burnAmount = availableBurn;
@@ -78,4 +95,34 @@ contract UniFitToken is ERC20, ERC20Burnable {
 
       return burnAmount;
   }
+
+  /**
+    * @dev Set the burn divisor.
+    *
+    * Sets the burn divisor to affect burn rate.
+    */
+  function setBurnDivisor(uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    require(amount >= MIN_BURN_DIVISOR, "Value less than min");
+    require(amount <= MAX_BURN_DIVISOR, "Value too large");
+    burnDivisor = amount;
+  }
+
+  /**
+    * @dev Enable transaction burn.
+    *
+    * Enables the transaction burn functionality.
+    */
+  function enableTransactionBurn() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    transactionBurnEnabled = true;
+  }
+
+  /**
+    * @dev Disable transaction burn.
+    *
+    * Enables the transaction burn functionality.
+    */
+  function disableTransactionBurn() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    transactionBurnEnabled = false;
+  }
+
 }
