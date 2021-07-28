@@ -10,17 +10,19 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   using SafeMath for uint256;
 
   // Enable transaction burn by default.
-  bool public transactionBurnEnabled = true;
+  bool private transactionBurnEnabled = true;
 
   // Set divisor constants.
-  uint256 public constant MIN_BURN_DIVISOR = 10;
-  uint256 public constant MAX_BURN_DIVISOR = 200;
+  uint256 private constant MIN_BURN_DIVISOR = 10;
+  uint256 private constant MAX_BURN_DIVISOR = 200;
+  string private constant MIN_MESSAGE = "Value less than min";
+  string private constant MAX_MESSAGE = "Value more than max";
 
   // Institute a minimum supply to prevent over-deflation.
   uint256 private _minimumSupply = 2000 * (10**18);
 
   // Institute a minimum supply to prevent over-deflation.
-  uint256 public burnDivisor = MIN_BURN_DIVISOR;
+  uint256 private burnDivisor = MIN_BURN_DIVISOR;
 
   /**
     * @dev Constructor.
@@ -102,8 +104,8 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * Sets the burn divisor to affect burn rate.
     */
   function setBurnDivisor(uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-    require(amount >= MIN_BURN_DIVISOR, "Value less than min");
-    require(amount <= MAX_BURN_DIVISOR, "Value too large");
+    require(amount >= MIN_BURN_DIVISOR, MIN_MESSAGE);
+    require(amount <= MAX_BURN_DIVISOR, MAX_MESSAGE);
     burnDivisor = amount;
   }
 
@@ -131,7 +133,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burn}.
     */
   function burn(uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-      _burn(_msgSender(), amount);
+      super.burn(amount);
   }
 
   /**
@@ -141,12 +143,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burnFrom}
     */
   function burnFrom(address account, uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-      uint256 currentAllowance = allowance(account, _msgSender());
-      require(currentAllowance >= amount, "Burn amount exceeds allowance");
-      unchecked {
-          _approve(account, _msgSender(), currentAllowance - amount);
-      }
-      _burn(account, amount);
+      super.burnFrom(account, amount);
   }
 
 }
