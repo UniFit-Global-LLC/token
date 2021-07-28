@@ -3,7 +3,7 @@ const { expect } = require("chai");
 describe("UniFitToken", function () {
 
   // Total Supply
-  let totalSupply = ethers.BigNumber.from("50000000000000000");
+  let totalSupply = ethers.BigNumber.from("50000000000000000000000000000000000");
 
   // Contract properties
   const MIN_BURN_DIVISOR = ethers.BigNumber.from("10");
