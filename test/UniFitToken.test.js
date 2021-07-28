@@ -5,7 +5,15 @@ describe("UniFitToken", function () {
   // Total Supply
   let totalSupply = ethers.BigNumber.from("50000000000000000000000000000");
 
-  // Declare consts
+  // Contract properties
+  const MIN_BURN_DIVISOR = ethers.BigNumber.from("10");
+  const MAX_BURN_DIVISOR = ethers.BigNumber.from("200");
+  let burnDivisor = MIN_BURN_DIVISOR;
+
+  // Declare constants
+  const MISSING_ROLE_MSG = "missing role";
+
+  // Declare common variables
   let owner, secondAddress, UniFitTokenContract, UniFitToken;
 
   before(async function () {
@@ -35,7 +43,7 @@ describe("UniFitToken", function () {
     await UniFitToken.transfer(secondAddress.address, transferAmount);
 
     // Calculate expected amounts amount
-    const burnAmount = transferAmount.div(await UniFitToken.burnDivisor());
+    const burnAmount = transferAmount.div(burnDivisor);
     const expectedTotalSupply = totalSupply.sub(burnAmount);
     const expectedSenderBalance = totalSupply.sub(transferAmount);
     const expectedReceipientBalance = transferAmount.sub(burnAmount);
@@ -51,7 +59,7 @@ describe("UniFitToken", function () {
 
     const newBurnDivisor = ethers.BigNumber.from("12");
     let secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.setBurnDivisor(newBurnDivisor)).to.be.reverted;
+    await expect(secondUserConnection.setBurnDivisor(newBurnDivisor)).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
@@ -84,20 +92,22 @@ describe("UniFitToken", function () {
 
   it("should not allow a burn divisor less than minimum", async function () {
 
-    const newBurnDivisor = (await UniFitToken.MIN_BURN_DIVISOR()).sub(1);
+    const newBurnDivisor = MIN_BURN_DIVISOR.sub(1);
 
     // Confirm divisor can be less than minium
-    await expect(UniFitToken.setBurnDivisor(newBurnDivisor)).to.be.reverted;
+    const expectedMessage = "Value less than min";
+    await expect(UniFitToken.setBurnDivisor(newBurnDivisor)).to.be.revertedWith(expectedMessage);
 
   });
 
   it("should not allow a burn divisor to be more than supply", async function () {
 
     // Set burn divisor to invaluie value
-    const newBurnDivisor = (await UniFitToken.MAX_BURN_DIVISOR()).add(1);
+    const newBurnDivisor = MAX_BURN_DIVISOR.add(1);
 
     // Confirm divisor can be less than minium
-    await expect(UniFitToken.setBurnDivisor(newBurnDivisor)).to.be.reverted;
+    const expectedMessage = "Value more than max";
+    await expect(UniFitToken.setBurnDivisor(newBurnDivisor)).to.be.revertedWith(expectedMessage);
 
   });
 
@@ -128,14 +138,14 @@ describe("UniFitToken", function () {
   it("should only allow admins to disable trasnaction burn", async function () {
 
     const secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.disableTransactionBurn()).to.be.reverted;
+    await expect(secondUserConnection.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
   it("should only allow admins to disable trasnaction burn", async function () {
 
     const secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.enableTransactionBurn()).to.be.reverted;
+    await expect(secondUserConnection.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
@@ -155,6 +165,25 @@ describe("UniFitToken", function () {
     const secondUserConnection = UniFitToken.connect(secondAddress);
     await expect(secondUserConnection.burn(burnAmount)).to.be.reverted;
     expect(await UniFitToken.totalSupply()).to.equal(totalSupply);
+
+  });
+
+  it("should resist other contracts attacks calling priviledged methods", async function () {
+
+    // Deploy attack contract
+    const UniFitTokenAttackContract = await ethers.getContractFactory("UniFitTokenAttack");
+    const UniFitTokenAttack = await UniFitTokenAttackContract.deploy(UniFitToken.address);
+    await UniFitTokenAttack.deployed();
+
+    // Attack Transaction Burn flag
+    await expect(UniFitTokenAttack.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(UniFitTokenAttack.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
+
+    // Attack Burn Divisor
+    await expect(UniFitTokenAttack.setBurnDivisor()).to.be.revertedWith(MISSING_ROLE_MSG);
+
+    // Attack Burn
+    await expect(UniFitTokenAttack.burn()).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
