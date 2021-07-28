@@ -19,7 +19,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   string private constant MAX_MESSAGE = "Value more than max";
 
   // Institute a minimum supply to prevent over-deflation.
-  uint256 private _minimumSupply = 2000 * (10**18);
+  uint256 private _minimumSupply;
 
   // Institute a minimum supply to prevent over-deflation.
   uint256 private burnDivisor = MIN_BURN_DIVISOR;
@@ -32,6 +32,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   constructor(uint256 initialSupply) ERC20("UniFit Token", "UNIFT") {
       _mint(msg.sender, initialSupply);
       _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+      _minimumSupply = initialSupply.div(10);
   }
 
   /**
