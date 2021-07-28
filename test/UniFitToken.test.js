@@ -3,7 +3,7 @@ const { expect } = require("chai");
 describe("UniFitToken", function () {
 
   // Total Supply
-  let totalSupply = ethers.BigNumber.from("50000000000000000000000000000");
+  let totalSupply = ethers.BigNumber.from("50000000000000000");
 
   // Contract properties
   const MIN_BURN_DIVISOR = ethers.BigNumber.from("10");
@@ -57,28 +57,28 @@ describe("UniFitToken", function () {
 
   it("should only allow admins to set the burn divisor (rate)", async function () {
 
-    const newBurnDivisor = ethers.BigNumber.from("12");
+    burnDivisor = ethers.BigNumber.from("12");
     let secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.setBurnDivisor(newBurnDivisor)).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(secondUserConnection.setBurnDivisor(burnDivisor)).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
   it("should burn at the new burn rate when set", async function () {
 
-    const newBurnDivisor = ethers.BigNumber.from("12");
+    burnDivisor = ethers.BigNumber.from("12");
     totalSupply = await UniFitToken.totalSupply();
     let senderBalance = await UniFitToken.balanceOf(owner.address);
     let recipientBalance = await UniFitToken.balanceOf(secondAddress.address);
 
     // Set new burn divisor
-    UniFitToken.setBurnDivisor(newBurnDivisor);
+    UniFitToken.setBurnDivisor(burnDivisor);
 
     // Transfer some of the tokens
     const transferAmount = ethers.BigNumber.from("10000000");
     await UniFitToken.transfer(secondAddress.address, transferAmount);
 
     // Calculate expected amounts amount
-    const burnAmount = transferAmount.div(newBurnDivisor);
+    const burnAmount = transferAmount.div(burnDivisor);
     const expectedTotalSupply = totalSupply.sub(burnAmount);
     const expectedSenderBalance = senderBalance.sub(transferAmount);
     const expectedReceipientBalance = recipientBalance.add(transferAmount.sub(burnAmount));
