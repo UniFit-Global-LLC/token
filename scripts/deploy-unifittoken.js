@@ -14,12 +14,13 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const initialSupply = ethers.BigNumber.from("50000000000000000000000000000000000");
+  const UniFitTokenContract = await hre.ethers.getContractFactory("UniFitToken");
+  const UniFitToken = await UniFitTokenContract.deploy(initialSupply);
 
-  await greeter.deployed();
+  await UniFitToken.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("UniFitToken deployed to:", UniFitToken.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

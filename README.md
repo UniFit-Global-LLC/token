@@ -32,3 +32,32 @@ yarn test
 ```
 yarn solhint
 ```
+
+### Local blockchain
+
+```
+yarn chain
+```
+
+## Deployment
+
+### Local chain
+
+Start chain and run deploy
+
+```
+# In one terminal window
+yarn chain
+
+# In another terminal window
+npx hardhat run scripts/deploy-unifittoken.js --network localhost
+
+### Rinkeby
+ 
+Set your environment variables
+
+Run hardhat deploy
+
+```
+npx hardhat run scripts/deploy-unifittoken.js --network rinkeby
+```
