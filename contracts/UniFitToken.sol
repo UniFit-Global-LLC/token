@@ -10,7 +10,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   using SafeMath for uint256;
 
   // Enable transaction burn by default.
-  bool private transactionBurnEnabled = true;
+  bool private transactionBurnEnabled = false;
 
   // Set divisor constants.
   uint256 private constant MIN_BURN_DIVISOR = 10;

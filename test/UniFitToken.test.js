@@ -26,6 +26,9 @@ describe("UniFitToken", function () {
     UniFitToken = await UniFitTokenContract.deploy(totalSupply);
     await UniFitToken.deployed();
 
+    // Enable transaction burn
+    UniFitToken.enableTransactionBurn();
+
   });
 
   it("should mint X number of tokens upon deploy and assign to sender/owner", async function () {
@@ -100,7 +103,7 @@ describe("UniFitToken", function () {
 
   });
 
-  it("should not allow a burn divisor to be more than supply", async function () {
+  it("should not allow a burn divisor to be more than maximum", async function () {
 
     // Set burn divisor to invaluie value
     const newBurnDivisor = MAX_BURN_DIVISOR.add(1);
@@ -135,21 +138,21 @@ describe("UniFitToken", function () {
 
   });
 
-  it("should only allow admins to disable trasnaction burn", async function () {
+  it("should only allow admins to disable transaction burn", async function () {
 
     const secondUserConnection = UniFitToken.connect(secondAddress);
     await expect(secondUserConnection.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
-  it("should only allow admins to disable trasnaction burn", async function () {
+  it("should only allow admins to enable transaction burn", async function () {
 
     const secondUserConnection = UniFitToken.connect(secondAddress);
     await expect(secondUserConnection.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
 
   });
 
-  it("should allow admins to burn from the total supply", async function () {
+  it("should allow admins to burn from wallets", async function () {
 
     totalSupply = await UniFitToken.totalSupply();
     const burnAmount = ethers.BigNumber.from("10000000");
@@ -158,7 +161,7 @@ describe("UniFitToken", function () {
 
   });
 
-  it("should allow only admins to burn from the total supply", async function () {
+  it("should allow only admins to burn from wallets", async function () {
 
     totalSupply = await UniFitToken.totalSupply();
     const burnAmount = ethers.BigNumber.from("10000000");
