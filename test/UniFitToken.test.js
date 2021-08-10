@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 
-describe("UniFitToken", function () {
+describe("UniFitToken", async function () {
 
   // Total Supply
   let totalSupply = ethers.BigNumber.from("50000000000000000000000000000000000");
@@ -27,7 +27,7 @@ describe("UniFitToken", function () {
     await UniFitToken.deployed();
 
     // Enable transaction burn
-    UniFitToken.enableTransactionBurn();
+    await UniFitToken.enableTransactionBurn();
 
   });
 
@@ -74,7 +74,9 @@ describe("UniFitToken", function () {
     let recipientBalance = await UniFitToken.balanceOf(secondAddress.address);
 
     // Set new burn divisor
-    UniFitToken.setBurnDivisor(burnDivisor);
+    await expect(UniFitToken.setBurnDivisor(burnDivisor))
+      .to.emit(UniFitToken, 'BurnDivisorChange')
+      .withArgs(burnDivisor);
 
     // Transfer some of the tokens
     const transferAmount = ethers.BigNumber.from("10000000");
@@ -121,7 +123,9 @@ describe("UniFitToken", function () {
     let recipientBalance = await UniFitToken.balanceOf(secondAddress.address);
 
     // Disable transaction burn
-    await UniFitToken.disableTransactionBurn();
+    await expect(UniFitToken.disableTransactionBurn())
+      .to.emit(UniFitToken, 'TxnBurnFlagChange')
+      .withArgs(false);
 
     // Transfer some of the tokens
     const transferAmount = ethers.BigNumber.from("10000000");
@@ -135,6 +139,11 @@ describe("UniFitToken", function () {
     expect(await UniFitToken.totalSupply()).to.equal(totalSupply);
     expect(await UniFitToken.balanceOf(owner.address)).to.equal(expectedSenderBalance);
     expect(await UniFitToken.balanceOf(secondAddress.address)).to.equal(expectedReceipientBalance);
+
+    // Enable transaction burn
+    await expect(UniFitToken.enableTransactionBurn())
+      .to.emit(UniFitToken, 'TxnBurnFlagChange')
+      .withArgs(true);
 
   });
 

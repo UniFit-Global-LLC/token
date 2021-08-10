@@ -7,7 +7,15 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
+
+  // Override unit256 with safe alternative
   using SafeMath for uint256;
+
+  // Burn Divisor Change Event
+  event BurnDivisorChange(uint256 divisor);
+
+  // Transaction Burn Flag Change Event
+  event TxnBurnFlagChange(bool flag);
 
   // Enable transaction burn by default.
   bool private transactionBurnEnabled = false;
@@ -15,6 +23,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   // Set divisor constants.
   uint256 private constant MIN_BURN_DIVISOR = 10;
   uint256 private constant MAX_BURN_DIVISOR = 200;
+  uint256 private constant MIN_SUPPLY_DIVISOR = 10;
   string private constant MIN_MESSAGE = "Value less than min";
   string private constant MAX_MESSAGE = "Value more than max";
 
@@ -32,7 +41,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   constructor(uint256 initialSupply) ERC20("UniFit Token", "UNIFT") {
       _mint(msg.sender, initialSupply);
       _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-      _minimumSupply = initialSupply.div(10);
+      _minimumSupply = initialSupply.div(MIN_SUPPLY_DIVISOR);
   }
 
   /**
@@ -104,10 +113,11 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     *
     * Sets the burn divisor to affect burn rate.
     */
-  function setBurnDivisor(uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-    require(amount >= MIN_BURN_DIVISOR, MIN_MESSAGE);
-    require(amount <= MAX_BURN_DIVISOR, MAX_MESSAGE);
-    burnDivisor = amount;
+  function setBurnDivisor(uint256 divisor) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    require(divisor >= MIN_BURN_DIVISOR, MIN_MESSAGE);
+    require(divisor <= MAX_BURN_DIVISOR, MAX_MESSAGE);
+    burnDivisor = divisor;
+    emit BurnDivisorChange(divisor);
   }
 
   /**
@@ -117,6 +127,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     */
   function enableTransactionBurn() public onlyRole(DEFAULT_ADMIN_ROLE) {
     transactionBurnEnabled = true;
+    emit TxnBurnFlagChange(transactionBurnEnabled);
   }
 
   /**
@@ -126,6 +137,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     */
   function disableTransactionBurn() public onlyRole(DEFAULT_ADMIN_ROLE) {
     transactionBurnEnabled = false;
+    emit TxnBurnFlagChange(transactionBurnEnabled);
   }
 
   /**
