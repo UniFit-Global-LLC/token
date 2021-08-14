@@ -4,12 +4,8 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
-
-  // Override unit256 with safe alternative.
-  using SafeMath for uint256;
 
   // Burn Divisor Change Event.
   event BurnDivisorChange(uint256 divisor);
@@ -24,6 +20,8 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   uint256 private constant MIN_BURN_DIVISOR = 10;
   uint256 private constant MAX_BURN_DIVISOR = 200;
   uint256 private constant MIN_SUPPLY_DIVISOR = 2;
+  string private constant TOKEN_NAME = "UniFit Token";
+  string private constant TOKEN_SYMBOL = "UNIFT";
   string private constant MIN_MESSAGE = "Value less than min";
   string private constant MAX_MESSAGE = "Value more than max";
 
@@ -38,10 +36,10 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     *
     * Constructor method used in deployment.
     */
-  constructor(uint256 initialSupply) ERC20("UniFit Token", "UNIFT") {
+  constructor(uint256 initialSupply) ERC20(TOKEN_NAME, TOKEN_SYMBOL) {
       _mint(msg.sender, initialSupply);
       _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-      _minimumSupply = initialSupply.div(MIN_SUPPLY_DIVISOR);
+      _minimumSupply = initialSupply / MIN_SUPPLY_DIVISOR;
   }
 
   /**
@@ -82,7 +80,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
           _burn(msg.sender, burnAmount);
       }
 
-      return amount.sub(burnAmount);
+      return amount - burnAmount;
   }
 
   /**
@@ -98,8 +96,8 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
       uint256 burnAmount = 0;
 
       if (transactionBurnEnabled && totalSupply() > _minimumSupply) {
-          burnAmount = amount.div(burnDivisor);
-          uint256 availableBurn = totalSupply().sub(_minimumSupply);
+          burnAmount = amount / burnDivisor;
+          uint256 availableBurn = totalSupply() - _minimumSupply;
           if (burnAmount > availableBurn) {
               burnAmount = availableBurn;
           }

@@ -4,12 +4,8 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract BaselineToken is ERC20, ERC20Burnable, AccessControl {
-
-  // Override unit256 with safe alternative.
-  using SafeMath for uint256;
 
   /**
     * @dev Constructor.
