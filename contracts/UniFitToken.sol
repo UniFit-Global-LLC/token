@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: NOLICENSE
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -8,22 +8,22 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
 
-  // Override unit256 with safe alternative
+  // Override unit256 with safe alternative.
   using SafeMath for uint256;
 
-  // Burn Divisor Change Event
+  // Burn Divisor Change Event.
   event BurnDivisorChange(uint256 divisor);
 
-  // Transaction Burn Flag Change Event
+  // Transaction Burn Flag Change Event.
   event TxnBurnFlagChange(bool flag);
 
-  // Enable transaction burn by default.
+  // Disable transaction burn by default.
   bool private transactionBurnEnabled = false;
 
   // Set divisor constants.
   uint256 private constant MIN_BURN_DIVISOR = 10;
   uint256 private constant MAX_BURN_DIVISOR = 200;
-  uint256 private constant MIN_SUPPLY_DIVISOR = 10;
+  uint256 private constant MIN_SUPPLY_DIVISOR = 2;
   string private constant MIN_MESSAGE = "Value less than min";
   string private constant MAX_MESSAGE = "Value more than max";
 

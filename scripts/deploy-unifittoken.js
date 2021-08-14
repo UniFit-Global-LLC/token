@@ -14,7 +14,7 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const initialSupply = ethers.BigNumber.from("50000000000000000000000000000000000");
+  const initialSupply = ethers.BigNumber.from("500000000000000000000000000000");
   const UniFitTokenContract = await hre.ethers.getContractFactory("UniFitToken");
   const UniFitToken = await UniFitTokenContract.deploy(initialSupply);
 

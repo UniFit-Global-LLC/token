@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: NOLICENSE
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 import "./UniFitToken.sol";
 

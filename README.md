@@ -51,6 +51,7 @@ yarn chain
 
 # In another terminal window
 npx hardhat run scripts/deploy-unifittoken.js --network localhost
+```
 
 ### Rinkeby
  

@@ -10,7 +10,7 @@ const privateKey = process.env.PRIVATE_KEY || "000000000000000000000000000000000
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "0.8.7",
   networks: {
     hardhat: {
       chainId: 1337
