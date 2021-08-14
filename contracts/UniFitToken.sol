@@ -24,6 +24,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   string private constant TOKEN_SYMBOL = "UNIFT";
   string private constant MIN_MESSAGE = "Value less than min";
   string private constant MAX_MESSAGE = "Value more than max";
+  string private constant BURN_MAX_MESSAGE = "Amount exceeds available burn supply";
 
   // Institute a minimum supply to prevent over-deflation.
   uint256 private _minimumSupply;
@@ -37,9 +38,9 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * Constructor method used in deployment.
     */
   constructor(uint256 initialSupply) ERC20(TOKEN_NAME, TOKEN_SYMBOL) {
-      _mint(msg.sender, initialSupply);
-      _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-      _minimumSupply = initialSupply / MIN_SUPPLY_DIVISOR;
+    _mint(msg.sender, initialSupply);
+    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    _minimumSupply = initialSupply / MIN_SUPPLY_DIVISOR;
   }
 
   /**
@@ -48,11 +49,11 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * Implements transfer with burn.
     */
   function transfer(address to, uint256 amount)
-      public
-      override
-      returns (bool)
+    public
+    override
+    returns (bool)
   {
-      return super.transfer(to, _partialBurn(amount));
+    return super.transfer(to, _partialBurn(amount));
   }
 
   /**
@@ -61,11 +62,11 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * Implements transfer with burn.
     */
   function transferFrom(
-      address from,
-      address to,
-      uint256 amount
+    address from,
+    address to,
+    uint256 amount
   ) public override returns (bool) {
-      return super.transferFrom(from, to, _partialBurn(amount));
+    return super.transferFrom(from, to, _partialBurn(amount));
   }
 
   /**
@@ -77,7 +78,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
       uint256 burnAmount = _calculateBurnAmount(amount);
 
       if (burnAmount > 0) {
-          _burn(msg.sender, burnAmount);
+          super._burn(msg.sender, burnAmount);
       }
 
       return amount - burnAmount;
@@ -89,21 +90,21 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * Evaluate transfer amount to determine desired burn.
     */
   function _calculateBurnAmount(uint256 amount)
-      internal
-      view
-      returns (uint256)
+    internal
+    view
+    returns (uint256)
   {
-      uint256 burnAmount = 0;
+    uint256 burnAmount = 0;
 
-      if (transactionBurnEnabled && totalSupply() > _minimumSupply) {
-          burnAmount = amount / burnDivisor;
-          uint256 availableBurn = totalSupply() - _minimumSupply;
-          if (burnAmount > availableBurn) {
-              burnAmount = availableBurn;
-          }
+    if (transactionBurnEnabled && totalSupply() > _minimumSupply) {
+      burnAmount = amount / burnDivisor;
+      uint256 availableBurn = totalSupply() - _minimumSupply;
+      if (burnAmount > availableBurn) {
+        burnAmount = availableBurn;
       }
+    }
 
-      return burnAmount;
+    return burnAmount;
   }
 
   /**
@@ -139,12 +140,22 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   }
 
   /**
+    * @dev Check Burn Supply.
+    *
+    * Checks.
+    */
+  function checkBurnSupply(uint256 amount) internal view {
+    require((totalSupply() - _minimumSupply) > amount, BURN_MAX_MESSAGE);
+  }
+
+  /**
     * @dev Destroys `amount` tokens from the caller.
     *
     * See {ERC20Burnable-_burn}.
     */
   function burn(uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-      super.burn(amount);
+    checkBurnSupply(amount);
+    super.burn(amount);
   }
 
   /**
@@ -154,7 +165,8 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burnFrom}
     */
   function burnFrom(address account, uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-      super.burnFrom(account, amount);
+    checkBurnSupply(amount);
+    super.burnFrom(account, amount);
   }
 
 }
