@@ -3,7 +3,7 @@ const { expect } = require("chai");
 describe("UniFitToken", async function () {
 
   // Total Supply
-  let totalSupply = ethers.BigNumber.from("50000000000000000000000000000000000");
+  let totalSupply = ethers.BigNumber.from("500000000000000000000000000000");
 
   // Contract properties
   const MIN_BURN_DIVISOR = ethers.BigNumber.from("10");
@@ -196,6 +196,15 @@ describe("UniFitToken", async function () {
 
     // Attack Burn
     await expect(UniFitTokenAttack.burn()).to.be.revertedWith(MISSING_ROLE_MSG);
+
+  });
+
+  it("should use a consistent amount of gas", async function () {
+
+    for (let i = 0, j = 10, transferAmount = 0; i < 10; i++) {
+      transferAmount = ethers.BigNumber.from(j**i);
+      await UniFitToken.transfer(secondAddress.address, transferAmount);
+    }
 
   });
 
