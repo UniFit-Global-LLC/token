@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("hardhat-gas-reporter");
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -18,6 +19,9 @@ module.exports = {
     rinkeby: {
       url: alchemyRinkebyEndpoint,
       accounts: [`0x${privateKey}`]
+    },
+    gasReporter: {
+      url: "http://localhost:8545"
     }
   }
 };
