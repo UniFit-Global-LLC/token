@@ -24,6 +24,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
   string private constant TOKEN_SYMBOL = "UNIFT";
   string private constant MIN_MESSAGE = "Value less than min";
   string private constant MAX_MESSAGE = "Value more than max";
+  string private constant BURN_UNAVAILABLE_MESSAGE = "Burn feature unavailable";
   string private constant BURN_MAX_MESSAGE = "Amount exceeds available burn supply";
 
   // Institute a minimum supply to prevent over-deflation.
@@ -145,7 +146,8 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * Checks.
     */
   function checkBurnSupply(uint256 amount) internal view {
-    require((totalSupply() - _minimumSupply) > amount, BURN_MAX_MESSAGE);
+    require(totalSupply() > _minimumSupply, BURN_UNAVAILABLE_MESSAGE);
+    require((totalSupply() - _minimumSupply) >= amount, BURN_MAX_MESSAGE);
   }
 
   /**

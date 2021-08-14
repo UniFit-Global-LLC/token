@@ -13,6 +13,7 @@ describe("UniFitToken", async function () {
   // Declare constants
   const MISSING_ROLE_MESSAGE = "missing role";
   const BURN_MAX_MESSAGE = "Amount exceeds available burn supply";
+  const BURN_UNAVAILABLE_MESSAGE = "Burn feature unavailable";
 
   // Declare common variables
   let owner, secondAddress, UniFitTokenContract, UniFitToken;
@@ -206,6 +207,21 @@ describe("UniFitToken", async function () {
       transferAmount = ethers.BigNumber.from(j**i);
       await UniFitToken.transfer(secondAddress.address, transferAmount);
     }
+
+  });
+
+  it("should not allow burns when total supply equals minimum supply", async function () {
+
+    // Deploy contract instance
+    const UniFitTokenContractB = await ethers.getContractFactory("UniFitToken");
+    const UniFitTokenB = await UniFitTokenContract.deploy(totalSupply);
+    await UniFitTokenB.deployed();
+
+    // Burn half
+    await UniFitTokenB.burn(totalSupply.div(2).add(1));
+
+    // Burn more
+    await expect(UniFitTokenB.burn(ethers.BigNumber.from(1))).to.be.revertedWith(BURN_UNAVAILABLE_MESSAGE);
 
   });
 
