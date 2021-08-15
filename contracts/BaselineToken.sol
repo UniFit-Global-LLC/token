@@ -4,12 +4,8 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract BaselineToken is ERC20, ERC20Burnable, AccessControl {
-
-  // Override unit256 with safe alternative.
-  using SafeMath for uint256;
 
   /**
     * @dev Constructor.
@@ -17,8 +13,8 @@ contract BaselineToken is ERC20, ERC20Burnable, AccessControl {
     * Constructor method used in deployment.
     */
   constructor(uint256 initialSupply) ERC20("UniFit Token", "UNIFT") {
-      _mint(msg.sender, initialSupply);
-      _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    _mint(msg.sender, initialSupply);
+    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
   }
 
   /**
@@ -27,7 +23,7 @@ contract BaselineToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burn}.
     */
   function burn(uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-      super.burn(amount);
+    super.burn(amount);
   }
 
   /**
@@ -37,7 +33,7 @@ contract BaselineToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burnFrom}
     */
   function burnFrom(address account, uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-      super.burnFrom(account, amount);
+    super.burnFrom(account, amount);
   }
 
 }

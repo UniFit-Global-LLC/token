@@ -11,7 +11,9 @@ describe("UniFitToken", async function () {
   let burnDivisor = MIN_BURN_DIVISOR;
 
   // Declare constants
-  const MISSING_ROLE_MSG = "missing role";
+  const MISSING_ROLE_MESSAGE = "missing role";
+  const BURN_MAX_MESSAGE = "Amount exceeds available burn supply";
+  const BURN_UNAVAILABLE_MESSAGE = "Burn feature unavailable";
 
   // Declare common variables
   let owner, secondAddress, UniFitTokenContract, UniFitToken;
@@ -62,7 +64,7 @@ describe("UniFitToken", async function () {
 
     burnDivisor = ethers.BigNumber.from("12");
     let secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.setBurnDivisor(burnDivisor)).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(secondUserConnection.setBurnDivisor(burnDivisor)).to.be.revertedWith(MISSING_ROLE_MESSAGE);
 
   });
 
@@ -150,14 +152,14 @@ describe("UniFitToken", async function () {
   it("should only allow admins to disable transaction burn", async function () {
 
     const secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(secondUserConnection.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MESSAGE);
 
   });
 
   it("should only allow admins to enable transaction burn", async function () {
 
     const secondUserConnection = UniFitToken.connect(secondAddress);
-    await expect(secondUserConnection.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(secondUserConnection.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MESSAGE);
 
   });
 
@@ -180,7 +182,7 @@ describe("UniFitToken", async function () {
 
   });
 
-  it("should resist other contracts attacks calling priviledged methods", async function () {
+  it("should resist other contracts attacks calling privileged methods", async function () {
 
     // Deploy attack contract
     const UniFitTokenAttackContract = await ethers.getContractFactory("UniFitTokenAttack");
@@ -188,23 +190,45 @@ describe("UniFitToken", async function () {
     await UniFitTokenAttack.deployed();
 
     // Attack Transaction Burn flag
-    await expect(UniFitTokenAttack.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
-    await expect(UniFitTokenAttack.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(UniFitTokenAttack.enableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MESSAGE);
+    await expect(UniFitTokenAttack.disableTransactionBurn()).to.be.revertedWith(MISSING_ROLE_MESSAGE);
 
     // Attack Burn Divisor
-    await expect(UniFitTokenAttack.setBurnDivisor()).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(UniFitTokenAttack.setBurnDivisor()).to.be.revertedWith(MISSING_ROLE_MESSAGE);
 
     // Attack Burn
-    await expect(UniFitTokenAttack.burn()).to.be.revertedWith(MISSING_ROLE_MSG);
+    await expect(UniFitTokenAttack.burn()).to.be.revertedWith(MISSING_ROLE_MESSAGE);
 
   });
 
-  it("should use a consistent amount of gas", async function () {
+  it("should give us insight into gas consumption", async function () {
 
     for (let i = 0, j = 10, transferAmount = 0; i < 10; i++) {
       transferAmount = ethers.BigNumber.from(j**i);
       await UniFitToken.transfer(secondAddress.address, transferAmount);
     }
+
+  });
+
+  it("should not allow burns when total supply equals minimum supply", async function () {
+
+    // Deploy contract instance
+    const UniFitTokenContractB = await ethers.getContractFactory("UniFitToken");
+    const UniFitTokenB = await UniFitTokenContract.deploy(totalSupply);
+    await UniFitTokenB.deployed();
+
+    // Burn half
+    await UniFitTokenB.burn(totalSupply.div(2).add(1));
+
+    // Burn more
+    await expect(UniFitTokenB.burn(ethers.BigNumber.from(1))).to.be.revertedWith(BURN_UNAVAILABLE_MESSAGE);
+
+  });
+
+  it("should not allow burns exceeding the minimum supply", async function () {
+
+    let transferAmount = await UniFitToken.balanceOf(owner.address);
+    await expect(UniFitToken.burn(transferAmount)).to.be.revertedWith(BURN_MAX_MESSAGE);
 
   });
 

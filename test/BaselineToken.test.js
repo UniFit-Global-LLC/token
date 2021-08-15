@@ -68,7 +68,7 @@ describe("BaselineToken", async function () {
 
   });
 
-  it("should use a consistent amount of gas", async function () {
+  it("should give us insight into gas consumption", async function () {
 
     for (let i = 0, j = 10, transferAmount = 0; i < 10; i++) {
       transferAmount = ethers.BigNumber.from(j**i);
