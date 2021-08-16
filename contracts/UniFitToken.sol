@@ -145,7 +145,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     *
     * Checks.
     */
-  function checkBurnSupply(uint256 amount) internal view {
+  function _checkBurnSupply(uint256 amount) internal view {
     require(totalSupply() > _minimumSupply, BURN_UNAVAILABLE_MESSAGE);
     require((totalSupply() - _minimumSupply) >= amount, BURN_MAX_MESSAGE);
   }
@@ -156,7 +156,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burn}.
     */
   function burn(uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-    checkBurnSupply(amount);
+    _checkBurnSupply(amount);
     super.burn(amount);
   }
 
@@ -167,7 +167,7 @@ contract UniFitToken is ERC20, ERC20Burnable, AccessControl {
     * See {ERC20Burnable-_burnFrom}
     */
   function burnFrom(address account, uint256 amount) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-    checkBurnSupply(amount);
+    _checkBurnSupply(amount);
     super.burnFrom(account, amount);
   }
 
