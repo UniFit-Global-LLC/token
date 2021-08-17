@@ -28,12 +28,17 @@ describe("UniFitToken", async function () {
 
   });
 
-  it("should give us insight into gas consumption", async function () {
+  it("should give us insight into gas consumption for transfers", async function () {
 
-    for (let i = 0, j = 10, transferAmount = 0; i < 10; i++) {
-      transferAmount = ethers.BigNumber.from(j**i);
-      await UniFitToken.transfer(secondAddress.address, transferAmount);
-    }
+    await UniFitToken.transfer(secondAddress.address, 10);
+    await UniFitToken.transfer(secondAddress.address, 20);
+
+  });
+
+  it("should give us insight into gas consumption for approvals", async function () {
+
+    await UniFitToken.approve(secondAddress.address, 10);
+    await UniFitToken.approve(secondAddress.address, 20);
 
   });
 
